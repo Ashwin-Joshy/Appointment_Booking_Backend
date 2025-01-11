@@ -89,4 +89,34 @@ describe('Appointments Router', () => {
       expect(mockSave).toHaveBeenCalledTimes(1);
     });
   });
+  describe('GET /appointments/:date', () => {
+    it('should return a list of appointments for a specific date', async () => {
+      const date = '2025-01-01';
+      const mockAppointments = [
+        { id: 1, name: 'John Doe', date: '2025-01-01T00:00:00.000Z' },
+        { id: 2, name: 'Jane Doe', date: '2025-01-01T00:00:00.000Z' }
+      ];
+      mockFind.mockResolvedValue(mockAppointments);
+      const res = await request(app).get(`/api/appointments/date/${date}`);
+      expect(res.statusCode).toBe(200);
+      expect(res.body).toEqual(mockAppointments);
+      expect(mockFind).toHaveBeenCalledTimes(1);
+    });
+    it('should return an empty array if no appointments are found for a specific date', async () => {
+      const date = '2025-01-01';
+      mockFind.mockResolvedValue([]);
+      const res = await request(app).get(`/api/appointments/date/${date}`);
+      expect(res.statusCode).toBe(200);
+      expect(res.body).toEqual([]);
+      expect(mockFind).toHaveBeenCalledTimes(1);
+    });
+    it('should return a 500 error if an exception occurs while fetching appointments for a specific date', async () => {
+      const date = '2025-01-01';
+      mockFind.mockRejectedValue(new Error('Database error'));
+      const res = await request(app).get(`/api/appointments/date/${date}`);
+      expect(res.statusCode).toBe(500);
+      expect(res.body).toEqual({ error: 'Failed to fetch appointments by date' });
+      expect(mockFind).toHaveBeenCalledTimes(1);
+    });
+  });
 });

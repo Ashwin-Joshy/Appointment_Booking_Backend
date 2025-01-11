@@ -11,6 +11,18 @@ router.get('/', async (req, res) => {
         res.status(500).json({ error: 'Failed to fetch appointments' });
     }
 });
+router.get('/date/:date', async (req, res) => {
+    try {
+        const { date: dateParam } = req.params;
+        const dateParts = dateParam.split('-'); 
+        const dateObject = new Date(Number(dateParts[0]), Number(dateParts[1]) - 1, Number(dateParts[2]));
+        const appointmentRepository = await getAppointmentRepository();
+        const appointments = await appointmentRepository.find({ where: { date: dateObject } });
+        res.json(appointments);
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to fetch appointments by date' });
+    }
+});
 router.post('/', async (req: any, res: any) => {
     try {
         const { date, time, name, phone } = req.body;
